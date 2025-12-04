@@ -16,11 +16,9 @@ DB = "league.db"
 
 root = tk.Tk()
 root.title("6-a-Side League")
-root.geometry("960x720")
+root.geometry("1280x960")
 
-# -----------------------
-# FRAME SWITCHING
-# -----------------------
+#region FRAME SWITCHING
 def switch(frame):
     frame.tkraise()
 
@@ -31,10 +29,9 @@ for f in frames:
 add_player_frame, match_frame, team_pick_frame, set_result_frame, view_matches_frame, player_rank_frame  = frames
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
+#endregion
 
-# -----------------------
-# PAGE 1: ADD PLAYER
-# -----------------------
+#region PAGE 1: ADD PLAYER
 tk.Label(add_player_frame, text="Add Player", font=("Arial", 16)).pack(pady=10)
 entry_name = tk.Entry(add_player_frame)
 entry_full_name = tk.Entry(add_player_frame)
@@ -58,10 +55,9 @@ tk.Button(add_player_frame, text="View Matches", command=lambda: [refresh_view_m
 tk.Button(add_player_frame, text="Set Match Result", command=lambda: [refresh_matches(), switch(set_result_frame)]).pack(pady=5)
 tk.Button(add_player_frame, text="Player Rankings",
           command=lambda: [refresh_player_rankings(), switch(player_rank_frame)]).pack(pady=5)
+#endregion
 
-# -----------------------
-# PAGE 2: CREATE MATCH
-# -----------------------
+#region PAGE 2: CREATE MATCH
 tk.Label(match_frame, text="Create Match", font=("Arial", 16)).pack(pady=10)
 match_date = tk.Entry(match_frame)
 match_date.insert(0, str(date.today()))
@@ -73,10 +69,9 @@ def start_match():
 
 tk.Button(match_frame, text="Next: Pick Teams", command=start_match).pack(pady=20)
 tk.Button(match_frame, text="Back", command=lambda: switch(add_player_frame)).pack()
+#endregion
 
-# -----------------------
-# PAGE 3: TEAM SELECTION
-# -----------------------
+#region PAGE 3: TEAM SELECTION
 tk.Label(team_pick_frame, text="Pick Teams", font=("Arial", 16)).pack(pady=10)
 
 players_list = ttk.Treeview(team_pick_frame, columns=("id", "name", "elo"), show="headings", height=12)
@@ -147,10 +142,9 @@ def begin_team_selection(match_id):
     current_match_id = match_id
     refresh_players()
     switch(team_pick_frame)
+#endregion
 
-# -----------------------
-# PAGE 4: SET MATCH RESULT
-# -----------------------
+#region PAGE 4: SET MATCH RESULT
 tk.Label(set_result_frame, text="Set Match Result", font=("Arial", 16)).pack(pady=10)
 
 match_list = ttk.Treeview(set_result_frame, columns=("id", "date"), show="headings", height=10)
@@ -199,10 +193,9 @@ def select_winner():
 
 tk.Button(set_result_frame, text="Set Selected Team as Winner", command=select_winner).pack(pady=10)
 tk.Button(set_result_frame, text="Back", command=lambda: switch(add_player_frame)).pack(pady=5)
+#endregion
 
-# -----------------------
-# PAGE 5: VIEW MATCHES
-# -----------------------
+#region PAGE 5: VIEW MATCHES
 view_matches_frame = tk.Frame(root)
 view_matches_frame.grid(row=0, column=0, sticky="nsew")
 matches_list = ttk.Treeview(view_matches_frame, columns=("id", "date", "team1", "team2", "result"), show="headings", height=15)
@@ -242,9 +235,9 @@ def refresh_view_matches():
                 matches_list.insert("", "end", values=(match_id, match_date, ", ".join(t1_players), ", ".join(t2_players), result))
             else:
                 matches_list.insert("", "end", values=(match_id, match_date, "", "", "Pending"))
-# -----------------------
-# PAGE 5: VIEW MATCHES
-# -----------------------
+#endregion
+
+#region PAGE 6: PLAYER RANKINGS
 player_rank_frame = tk.Frame(root)
 player_rank_frame.grid(row=0, column=0, sticky="nsew")
 tk.Label(player_rank_frame, text="Player Rankings", font=("Arial", 16)).pack(pady=10)
@@ -264,9 +257,9 @@ def refresh_player_rankings():
     players.sort(key=lambda x: x[2], reverse=True)
     for pid, name, rating in players:
         player_tree.insert("", "end", values=(pid, name, round(rating)))
+#endregion
 
-# -----------------------
-# START
-# -----------------------
+#region START APP
 switch(add_player_frame)
 root.mainloop()
+#endregion

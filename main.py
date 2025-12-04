@@ -3,9 +3,7 @@ import sqlite3
 
 DB = "league.db"
 
-# ----------------------
-# PLAYER FUNCTIONS
-# ----------------------
+#region PLAYER FUNCTIONS
 
 def add_player(name, full_name=None):
     full = full_name if full_name else name
@@ -20,10 +18,9 @@ def get_players():
         cur = conn.cursor()
         cur.execute("SELECT id, name, rating FROM players ORDER BY name")
         return cur.fetchall()
+#endregion
 
-# ----------------------
-# MATCH + TEAM CREATION
-# ----------------------
+#region MATCH + TEAM CREATION
 
 def create_match(date):
     with sqlite3.connect(DB) as conn:
@@ -66,10 +63,41 @@ def set_match_result(match_id, winning_team_id):
 
         update_glicko2(winners, losers, conn, cur)
 
+def get_team_players(team_id):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
 
-# ----------------------
-# SIMPLE ELO
-# ----------------------
+    c.execute("""
+        SELECT players.id, players.name
+        FROM players
+        JOIN team_players ON players.id = team_players.player_id
+        WHERE team_players.team_id = ?
+    """, (team_id,))
+
+    result = c.fetchall()
+    conn.close()
+    return result
+
+def set_team_players(team_id, player_ids):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+
+    # delete old
+    c.execute("DELETE FROM team_players WHERE team_id = ?", (team_id,))
+
+    # insert new
+    for pid in player_ids:
+        c.execute(
+            "INSERT INTO team_players (team_id, player_id) VALUES (?, ?)",
+            (team_id, pid)
+        )
+
+    conn.commit()
+    conn.close()
+
+#endregion
+
+#region SIMPLE ELO
 
 TAU = 0.5  # Glicko-2 recommended constant
 
@@ -213,3 +241,4 @@ def update_glicko2(winners, losers, conn=None, cur=None):
         conn.commit()
         conn.close()
 
+#endregion
