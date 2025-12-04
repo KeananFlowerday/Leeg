@@ -72,6 +72,7 @@ def get_team_players(team_id):
         FROM players
         JOIN team_players ON players.id = team_players.player_id
         WHERE team_players.team_id = ?
+        ORDER BY players.name
     """, (team_id,))
 
     result = c.fetchall()
